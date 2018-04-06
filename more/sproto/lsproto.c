@@ -1,5 +1,8 @@
+#define LUA_LIB
+
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
 #include "msvcint.h"
 
 #include "lua.h"
@@ -170,7 +173,7 @@ encode(const struct sproto_arg *args) {
 			// It's decimal.
 			lua_Number vn = lua_tonumber(L, -1);
 			// use 64bit integer for 32bit architecture.
-			v = (int64_t)(vn * args->extra + 0.5);
+			v = (int64_t)(round(vn * args->extra));
 		} else {
 			v = lua_tointegerx__(L, -1, &isnum);
 			if(!isnum) {

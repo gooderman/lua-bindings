@@ -29,6 +29,8 @@ extern "C" {
 
 // protoc-gen-lua
 #include "protobuf/pb.h"
+    
+extern LUALIB_API int luaopen_bit(lua_State *L);
 
 #define CC_USE_SQLITE 1
 #define CC_USE_UNQLITE 1
@@ -46,6 +48,7 @@ static luaL_Reg luax_exts[] = {
     {"zlib", luaopen_zlib},
     {"pack", luaopen_pack},
     {"lfs", luaopen_lfs},
+    {"bit",luaopen_bit},
 #if CC_USE_SQLITE
     {"lsqlite3", luaopen_lsqlite3},
 #endif
