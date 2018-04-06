@@ -283,8 +283,11 @@ void async_tcp_client::service()
             if (!connection_ok) { /// connect failed, waiting connect notify
                 // reconnClock = clock(); never use clock api on android platform
                 //保证用户回调(也是通过TSF_CALL)先执行后，再继续
-                TSF_CALL(notify_next_opt());
-                wait_next_opt_notify();
+                if(!app_exiting_)
+                {
+                    TSF_CALL(notify_next_opt());
+                    wait_next_opt_notify();
+                }
                 continue;
             }
         }
@@ -367,8 +370,11 @@ void async_tcp_client::service()
         {
             handle_error();
             //保证用户回调(也是通过TSF_CALL)先执行后，再继续
-            TSF_CALL(notify_next_opt());
-            wait_next_opt_notify();
+            if(!app_exiting_)
+            {
+                TSF_CALL(notify_next_opt());
+                wait_next_opt_notify();
+            }
         }
     }
 
