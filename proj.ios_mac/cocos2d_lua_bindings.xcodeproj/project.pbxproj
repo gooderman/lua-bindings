@@ -360,6 +360,10 @@
 		1E4A46F220778E83002C0BD3 /* md5.h in Headers */ = {isa = PBXBuildFile; fileRef = 1E4A46EA20778E83002C0BD3 /* md5.h */; };
 		1E4A46F52077C593002C0BD3 /* lua_extensions_more.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1E4A46F32077C593002C0BD3 /* lua_extensions_more.cpp */; };
 		1E4A46F62077C593002C0BD3 /* lua_extensions_more.h in Headers */ = {isa = PBXBuildFile; fileRef = 1E4A46F42077C593002C0BD3 /* lua_extensions_more.h */; };
+		1E66C23D207FB1AA00BC88C2 /* CCDownloaderLua.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1E66C239207FB1A900BC88C2 /* CCDownloaderLua.cpp */; };
+		1E66C23E207FB1AA00BC88C2 /* CCDownloaderLua.h in Headers */ = {isa = PBXBuildFile; fileRef = 1E66C23A207FB1A900BC88C2 /* CCDownloaderLua.h */; };
+		1E66C23F207FB1AA00BC88C2 /* lua_download_bindings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1E66C23B207FB1A900BC88C2 /* lua_download_bindings.cpp */; };
+		1E66C240207FB1AA00BC88C2 /* lua_download_bindings.h in Headers */ = {isa = PBXBuildFile; fileRef = 1E66C23C207FB1A900BC88C2 /* lua_download_bindings.h */; };
 		3E2BDB0519C5E5FE0055CDCD /* lua_cocos2dx_audioengine_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3E2BDB0319C5E5FE0055CDCD /* lua_cocos2dx_audioengine_auto.cpp */; };
 		3E2BDB0619C5E5FE0055CDCD /* lua_cocos2dx_audioengine_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 3E2BDB0419C5E5FE0055CDCD /* lua_cocos2dx_audioengine_auto.hpp */; };
 		3E2BDB0A19C5E6100055CDCD /* lua_cocos2dx_audioengine_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3E2BDB0819C5E6100055CDCD /* lua_cocos2dx_audioengine_manual.cpp */; };
@@ -764,6 +768,10 @@
 		1E4A46EA20778E83002C0BD3 /* md5.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = md5.h; sourceTree = "<group>"; };
 		1E4A46F32077C593002C0BD3 /* lua_extensions_more.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lua_extensions_more.cpp; sourceTree = "<group>"; };
 		1E4A46F42077C593002C0BD3 /* lua_extensions_more.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lua_extensions_more.h; sourceTree = "<group>"; };
+		1E66C239207FB1A900BC88C2 /* CCDownloaderLua.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCDownloaderLua.cpp; sourceTree = "<group>"; };
+		1E66C23A207FB1A900BC88C2 /* CCDownloaderLua.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCDownloaderLua.h; sourceTree = "<group>"; };
+		1E66C23B207FB1A900BC88C2 /* lua_download_bindings.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lua_download_bindings.cpp; sourceTree = "<group>"; };
+		1E66C23C207FB1A900BC88C2 /* lua_download_bindings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lua_download_bindings.h; sourceTree = "<group>"; };
 		2905FACE18CF12E600240AA3 /* lua_cocos2dx_ui_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lua_cocos2dx_ui_auto.cpp; sourceTree = "<group>"; };
 		2905FACF18CF12E600240AA3 /* lua_cocos2dx_ui_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = lua_cocos2dx_ui_auto.hpp; sourceTree = "<group>"; };
 		3E2BDB0319C5E5FE0055CDCD /* lua_cocos2dx_audioengine_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lua_cocos2dx_audioengine_auto.cpp; sourceTree = "<group>"; };
@@ -1179,6 +1187,7 @@
 		1E4A460320771622002C0BD3 /* more */ = {
 			isa = PBXGroup;
 			children = (
+				1E66C238207FB1A900BC88C2 /* download */,
 				1E0B0DF12077CCE100D935D7 /* lua-bit */,
 				1E4A46F32077C593002C0BD3 /* lua_extensions_more.cpp */,
 				1E4A46F42077C593002C0BD3 /* lua_extensions_more.h */,
@@ -1413,6 +1422,17 @@
 			path = md5;
 			sourceTree = "<group>";
 		};
+		1E66C238207FB1A900BC88C2 /* download */ = {
+			isa = PBXGroup;
+			children = (
+				1E66C239207FB1A900BC88C2 /* CCDownloaderLua.cpp */,
+				1E66C23A207FB1A900BC88C2 /* CCDownloaderLua.h */,
+				1E66C23B207FB1A900BC88C2 /* lua_download_bindings.cpp */,
+				1E66C23C207FB1A900BC88C2 /* lua_download_bindings.h */,
+			);
+			path = download;
+			sourceTree = "<group>";
+		};
 		3E2BDB0719C5E6100055CDCD /* audioengine */ = {
 			isa = PBXGroup;
 			children = (
@@ -1456,6 +1476,7 @@
 				1E4A46EC20778E83002C0BD3 /* libbase64.h in Headers */,
 				1E4A466320771622002C0BD3 /* lsqlite3.h in Headers */,
 				15AC69E01987711400D17520 /* luaconf.h in Headers */,
+				1E66C240207FB1AA00BC88C2 /* lua_download_bindings.h in Headers */,
 				1E4A46CF20771945002C0BD3 /* select_interrupter.hpp in Headers */,
 				155C7DF819A71C4400F08B25 /* lua_cocos2dx_cocosdenshion_manual.h in Headers */,
 				1E4A46F020778E83002C0BD3 /* lua_crypto_bindings.h in Headers */,
@@ -1487,6 +1508,7 @@
 				15C1C2ED19874CBE00A46ACC /* CCLuaObjcBridge.h in Headers */,
 				1E4A464E20771622002C0BD3 /* strbuf.h in Headers */,
 				1E4A46D220771945002C0BD3 /* socket_select_interrupter.ipp in Headers */,
+				1E66C23E207FB1AA00BC88C2 /* CCDownloaderLua.h in Headers */,
 				1E4A46F62077C593002C0BD3 /* lua_extensions_more.h in Headers */,
 				15C1C2EE19874CBE00A46ACC /* tolua_fix.h in Headers */,
 				1E4A467820771622002C0BD3 /* lua_zlib.h in Headers */,
@@ -1847,6 +1869,7 @@
 				1E4A465B20771622002C0BD3 /* lpprint.c in Sources */,
 				155C7E0E19A71C9600F08B25 /* lua_extensions.c in Sources */,
 				15EFA1F61989E528000C57D3 /* lua_cocos2dx_experimental_auto.cpp in Sources */,
+				1E66C23F207FB1AA00BC88C2 /* lua_download_bindings.cpp in Sources */,
 				15AC69D519876E9300D17520 /* lua_cocos2dx_physics_auto.cpp in Sources */,
 				155C7E1E19A71CC700F08B25 /* LuaSkeletonAnimation.cpp in Sources */,
 				1E4A465720771622002C0BD3 /* lpcap.c in Sources */,
@@ -1876,6 +1899,7 @@
 				155C7DF619A71C3E00F08B25 /* lua_cocos2dx_cocosdenshion_manual.cpp in Sources */,
 				1E4A46AF20771945002C0BD3 /* async_tcp_client.cpp in Sources */,
 				15415AA519A71A53004F1E71 /* auxiliar.c in Sources */,
+				1E66C23D207FB1AA00BC88C2 /* CCDownloaderLua.cpp in Sources */,
 				155C7E1A19A71CBC00F08B25 /* lua_cocos2dx_spine_manual.cpp in Sources */,
 				1E4A465D20771622002C0BD3 /* lptree.c in Sources */,
 				15A561EC1B00A3F1005D4720 /* lua_cocos2dx_physics3d_manual.cpp in Sources */,

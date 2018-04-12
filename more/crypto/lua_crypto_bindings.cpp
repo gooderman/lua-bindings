@@ -329,9 +329,10 @@ static int tolua_cocos2dx_extra_luabinding_Crypto_MD5File00(lua_State* tolua_S)
 TOLUA_API int tolua_crypto_luabinding_open (lua_State* tolua_S)
 {
  tolua_open(tolua_S);
- tolua_reg_types(tolua_S);
+// tolua_reg_types(tolua_S);
  tolua_module(tolua_S,"cc",0);
  tolua_beginmodule(tolua_S,"cc");
+  tolua_usertype(tolua_S,"cc.Crypto");
   tolua_cclass(tolua_S,"Crypto","cc.Crypto","",NULL);
   tolua_beginmodule(tolua_S,"Crypto");
    tolua_function(tolua_S,"getAES256KeyLength",tolua_cocos2dx_extra_luabinding_Crypto_getAES256KeyLength00);
@@ -344,6 +345,7 @@ TOLUA_API int tolua_crypto_luabinding_open (lua_State* tolua_S)
    tolua_function(tolua_S,"MD5",tolua_cocos2dx_extra_luabinding_Crypto_MD500);
    tolua_function(tolua_S,"MD5File",tolua_cocos2dx_extra_luabinding_Crypto_MD5File00);
   tolua_endmodule(tolua_S);
+ tolua_endmodule(tolua_S);
     // std::string typeName = typeid(CCCrypto).name();
     // g_luaType[typeName] = "cc.Crypto";
     // g_typeCast["Crypto"] = "cc.Crypto";

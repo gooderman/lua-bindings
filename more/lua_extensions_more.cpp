@@ -4,6 +4,7 @@
 #include "zipfile/lua_zipfile_bindings.h"
 #include "xxsocket/lua_xxsocket_bindings.h"
 #include "crypto/lua_crypto_bindings.h"
+#include "download/lua_download_bindings.h"
 
 #if __cplusplus
 extern "C" {
@@ -83,6 +84,8 @@ void luaopen_lua_extensions_more(lua_State *L)
     register_zipfile_binding(L);
     register_xxsocket_binding(L);
     register_crypto_binding(L);
+    register_download_binding(L);
+    
 }
 
 #if __cplusplus
