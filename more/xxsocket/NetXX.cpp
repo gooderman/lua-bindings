@@ -66,10 +66,21 @@ enum {
 #define HWP_PACKET_MAX_LENGTH 65535
     
 #define SEND_TIME_OUT_SECOND 30
+    
 
 NetXX* NetXX::getInstance(void)
 {
     return purelib::gc::singleton<NetXX>::instance();
+}
+
+NetXX* NetXX::create(void)
+{
+    auto net = new NetXX();
+    if(net)
+    {
+        net->autorelease();
+    }
+    return net;
 }
 
 NetXX::NetXX()
@@ -78,14 +89,25 @@ NetXX::NetXX()
     responseTimeout = SEND_TIME_OUT_SECOND;
     connecting = false;
     luacallback = 0;
+//    async_tcp = std::make_shared<purelib::inet::async_tcp_client>();
+    __tcpcli = new purelib::inet::async_tcp_client();
 }
 NetXX::~NetXX()
 {
+    //CCLOG(" ~NetXX-------------------%d",1);
+    if(__tcpcli)
+    {
+        delete __tcpcli;
+        __tcpcli = nullptr;
+    }
+    //CCLOG(" ~NetXX-------------------%d",2);
+    Director::getInstance()->getScheduler()->unscheduleAllForTarget(this);
     if(luacallback!=0)
     {
         LuaEngine::getInstance()->removeScriptHandler(luacallback);
     }
     luacallback = 0;
+    //CCLOG(" ~NetXX-------------------%d",3);
 }
 
 void NetXX::setSendTimeout(long seconds)
@@ -102,7 +124,7 @@ bool NetXX::init()
 
     pauseReceive = false;
     
-    tcpcli->set_callbacks(
+    __tcpcli->set_callbacks(
                         NetXX::decode_packet_length,
                         [=](int ec, const char* msg){
                             this->connect_lose_callback_t(ec,msg);
@@ -114,7 +136,7 @@ bool NetXX::init()
                             this->threadsafe_callbacjk_t(f);
                         });
     
-    tcpcli->set_connect_listener(
+    __tcpcli->set_connect_listener(
                      [this](bool succeed, int error){
                         this->connect_callback_t(succeed,error);
                      }
@@ -127,7 +149,7 @@ bool NetXX::init()
                                                                    0,
                                                                    false);
     this->setConnectWaitTimeout(500);
-    tcpcli->start_service(); // The tcpcli thread not connect server until wakup called
+    __tcpcli->start_service(); // The tcpcli thread not connect server until wakup called
 
     return true;
 }
@@ -138,7 +160,7 @@ void NetXX::dispatch_received_pdu(float dt)
     {
         return;
     }
-    tcpcli->dispatch_received_pdu();
+    __tcpcli->dispatch_received_pdu();
 }
 
 bool NetXX::decode_packet_length(const char* data, size_t datalen, int& len)
@@ -232,8 +254,8 @@ void NetXX::shutdown()
 { // client shutdown network
 	CCLOG("--------shutdown---------");
     this->blocking = false;
-    if (tcpcli->is_connected()) {
-        tcpcli->close(); // will trigger connection lost event.
+    if (__tcpcli->is_connected()) {
+        __tcpcli->close(); // will trigger connection lost event.
     }
     else
     {
@@ -257,7 +279,7 @@ void NetXX::reset(void)
 
 void NetXX::setEndpoint(const char* address, const char* addressv6, u_short port)
 {
-    tcpcli->set_endpoint(address, addressv6, port);
+    __tcpcli->set_endpoint(address, addressv6, port);
 }
 
 void NetXX::startConnect(void)
@@ -266,7 +288,7 @@ void NetXX::startConnect(void)
     if (this->blocking){
         return;
     }
-    tcpcli->notify_connect();
+    __tcpcli->notify_connect();
     notifyLua(0,Connecting,"",0);
     pauseReceive = false;
 }
@@ -278,7 +300,7 @@ void NetXX::reConnect()
         return;
     }
     this->blocking = true;
-    tcpcli->notify_connect();
+    __tcpcli->notify_connect();
     notifyLua(0,Connecting,"",0);
     pauseReceive = false;
 }
@@ -286,7 +308,7 @@ void NetXX::reConnect()
 //-1: disable auto connect
 void NetXX::setConnectWaitTimeout(long milliseconds)
 {
-    tcpcli->set_connect_wait_timeout(milliseconds);
+    __tcpcli->set_connect_wait_timeout(milliseconds);
 }
 
 void  NetXX::setLuaListener(int hLuaFunc)
@@ -313,7 +335,7 @@ void  NetXX::setPauseReceive(bool flag)
 
 bool NetXX::sendMsg(std::string& msg, int sid)
 {
-    bool isconn = tcpcli->is_connected();
+    bool isconn = __tcpcli->is_connected();
     if (!isconn)
     {
         CCLOG("sendMsg:%d no connect fail!",sid);
@@ -360,7 +382,7 @@ bool NetXX::sendMsg_ex(std::string& msg, int sid)
     msg.insert(0,1,buf[1]);
 #endif
     std::vector<char> ob(msg.begin(), msg.end());
-    tcpcli->async_send(std::move(ob), [=](purelib::inet::error_number status){
+    __tcpcli->async_send(std::move(ob), [=](purelib::inet::error_number status){
         // if status not 0, general reson: network error occored.
         //just notify no need to process
         if (status == purelib::inet::ERR_OK) {
@@ -398,7 +420,7 @@ void NetXX::removeAllExpireCheckers(void)
 {
     for (auto& checker : tRespExpireThreshold)
     {
-        tcpcli->cancel_timer(checker.second.timer.get());
+        __tcpcli->cancel_timer(checker.second.timer.get());
     }
     tRespExpireThreshold.clear();
 }
@@ -431,7 +453,7 @@ void NetXX::createExpireChecker(int sid, const std::function<void()>& expiredCal
             { // the respCID is timeout
                 CCLOG("The response is timeout, client detected! sid : %d",sid);
                 this->dispatchNoRespMessage(sid,SendTimeOut);
-                // tcpcli->removeTimerListener(timeoTarget->second.timer.get());
+                // __tcpcli->removeTimerListener(timeoTarget->second.timer.get());
 
                 // 10 seconds no response, reset network
                 if (expiredCallback) {
@@ -484,7 +506,7 @@ void NetXX::dispatch_received_pkg(std::vector<char>&& packet)
     catch (std::logic_error& e)
     {
         CCLOG("decode package exception occured:%s", e.what());
-        // tcpcli->close();
+        // __tcpcli->close();
         this->shutdown();
         //MARK::NTF
         //decode error

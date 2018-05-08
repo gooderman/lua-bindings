@@ -35,6 +35,37 @@ tolua_lerror:
     return 0;
 }
 
+int lua_cocos2dx_NetXX_create(lua_State* tolua_S)
+{
+    int argc = 0;
+    bool ok  = true;
+    
+#if COCOS2D_DEBUG >= 1
+    tolua_Error tolua_err;
+#endif
+    
+#if COCOS2D_DEBUG >= 1
+    if (!tolua_isusertable(tolua_S,1,"cc.NetXX",0,&tolua_err)) goto tolua_lerror;
+#endif
+    
+    argc = lua_gettop(tolua_S) - 1;
+    
+    if (argc ==0 )
+    {
+        NetXX* ret = NetXX::create();
+        if(!ret)  goto tolua_lerror;
+        object_to_luaval<NetXX>(tolua_S, "cc.NetXX",(NetXX*)ret);
+        return 1;
+    }
+    CCLOG("%s has wrong number of arguments: %d, was expecting %d\n ", "cc.NetXX:create",argc, 0);
+    return 0;
+#if COCOS2D_DEBUG >= 1
+tolua_lerror:
+    tolua_error(tolua_S,"#ferror in function 'lua_cocos2dx_NetXX_create'.",&tolua_err);
+#endif
+    return 0;
+}
+
 int lua_cocos2dx_NetXX_init(lua_State* tolua_S)
 {
     int argc = 0;
@@ -542,6 +573,7 @@ int lua_register_cocos2dx_xxsocket(lua_State* L)
     tolua_function(L,"shutdown",lua_cocos2dx_NetXX_shutdown);
     tolua_function(L,"init",lua_cocos2dx_NetXX_init);
     tolua_function(L,"getInstance", lua_cocos2dx_NetXX_getInstance);
+    tolua_function(L,"create", lua_cocos2dx_NetXX_create);
     tolua_endmodule(L);
     std::string typeName = typeid(NetXX).name();
     g_luaType[typeName] = "cc.NetXX";

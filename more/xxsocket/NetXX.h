@@ -23,6 +23,8 @@ public:
 
     static NetXX* getInstance(void);
 
+    static NetXX* create(void);
+
     struct RespExpireInfo
     {
         long long expireTime; // milliseconds
@@ -108,6 +110,9 @@ private:
     int                                     lastErrorNumber = 0;
     //sometime maybe used to delaytime
     bool                                    pauseReceive = false;
+
+    std::shared_ptr<purelib::inet::async_tcp_client> async_tcp;
+    purelib::inet::async_tcp_client* __tcpcli;
 
 };
     

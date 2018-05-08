@@ -156,18 +156,29 @@ async_tcp_client::async_tcp_client() : app_exiting_(false),
 
 async_tcp_client::~async_tcp_client()
 {
+    //INET_LOG(" ~AsyncTcp-------------------%d",1);
     app_exiting_ = true;
-
+    //INET_LOG(" ~AsyncTcp-------------------%d",2);
     // shutdown_p2p_chancel();
     this->p2p_acceptor_.close();
-
+    
     close();
-
+    //INET_LOG(" ~AsyncTcp-------------------%d",3);
     this->connect_notify_cv_.notify_all();
     this->next_opt_cv_.notify_all();
-
+    //INET_LOG(" ~AsyncTcp-------------------%d",4);
     if (this->worker_thread_.joinable())
         this->worker_thread_.join();
+    
+    if (!send_queue_.empty()) {
+        for (auto pdu : send_queue_)
+            delete pdu;
+        send_queue_.clear();
+    }
+    if (!this->timer_queue_.empty()) {
+        this->timer_queue_.clear();
+    }
+    //INET_LOG(" ~AsyncTcp-------------------%d",5);
 }
 
 void async_tcp_client::set_timeouts(long timeo_connect, long timeo_send)
@@ -537,6 +548,11 @@ bool async_tcp_client::connect(void)
         INET_LOG("Client needs a ipv6 server address to connect! %s %u...",addressv6_.c_str(), port_);
         ret = impl_.pconnect_n(this->addressv6_.c_str(), this->port_, this->connect_timeout_);
     }
+    if(app_exiting_)
+    {
+        INET_LOG("connecting server %d, but app_exiting",ret);
+        return ret == 0;
+    }
     if (ret == 0)
     { // connect succeed, reset fds
         FD_ZERO(&fds_array_[read_op]);
@@ -620,6 +636,22 @@ bool async_tcp_client::do_write(p2p_io_ctx* ctx)
             n = ctx->impl_.send_i(v->data_.data() + v->offset_, bytes_left);
             if (n == bytes_left) { // All pdu bytes sent.
                 ctx->send_queue_.pop_front();
+////////////////////////////////////////////////////////////
+                if(!app_exiting_)
+                {
+                    auto on_sent = v->on_sent_;
+                    auto packetSize = v->data_.size();
+                    this->call_tsf_([on_sent,packetSize] {
+                        #if INET_ENABLE_VERBOSE_LOG
+                        INET_LOG("async_tcp_client::do_write ---> A packet sent success, packet size:%d", packetSize);
+                        #endif
+                        if (on_sent != nullptr)
+                            on_sent(error_number::ERR_OK);
+                    });
+                }
+                delete v;
+////////////////////////////////////////////////////////////
+#if 0
                 this->call_tsf_([v] {
 #if INET_ENABLE_VERBOSE_LOG
                     auto packetSize = v->data_.size();
@@ -629,6 +661,8 @@ bool async_tcp_client::do_write(p2p_io_ctx* ctx)
                         v->on_sent_(error_number::ERR_OK);
                     delete v;
                 });
+#endif
+////////////////////////////////////////////////////////////
             }
             else if (n > 0) { // TODO: add time
                 if (!v->expired())
@@ -641,6 +675,20 @@ bool async_tcp_client::do_write(p2p_io_ctx* ctx)
                 }
                 else { // send timeout
                     ctx->send_queue_.pop_front();
+////////////////////////////////////////////////////////////
+                    if(!app_exiting_)
+                    {
+                        auto on_sent = v->on_sent_;
+                        auto packetSize = v->data_.size();
+                        this->call_tsf_([on_sent,packetSize] {
+                            INET_LOG("async_tcp_client::do_write ---> A packet sent timeout, packet size:%d", packetSize);
+                            if (on_sent != nullptr)
+                                on_sent(error_number::ERR_SEND_TIMEOUT);
+                        });
+                    }
+                    delete v;
+////////////////////////////////////////////////////////////
+#if 0
                     this->call_tsf_([v] {
 
                         auto packetSize = v->data_.size();
@@ -650,6 +698,8 @@ bool async_tcp_client::do_write(p2p_io_ctx* ctx)
                             v->on_sent_(error_number::ERR_SEND_TIMEOUT);
                         delete v;
                     });
+#endif
+////////////////////////////////////////////////////////////
                 }
             }
             else { // n <= 0, TODO: add time
@@ -662,13 +712,25 @@ bool async_tcp_client::do_write(p2p_io_ctx* ctx)
 
                     int timestamp = time(NULL);
                     INET_LOG("[%d]async_tcp_client::do_write failed, the connection should be closed, retval=%d, socket error:%d, detail:%s", timestamp, n, ec, errormsg.c_str());
-
+////////////////////////////////////////////////////////////
+                    if(!app_exiting_)
+                    {
+                        auto on_sent = v->on_sent_;
+                        this->call_tsf_([on_sent] {
+                            if (on_sent != nullptr)
+                                on_sent(error_number::ERR_CONNECTION_LOST);
+                        });
+                    }
+                    delete v;
+////////////////////////////////////////////////////////////
+#if 0
                     this->call_tsf_([v] {
                         if (v->on_sent_)
                             v->on_sent_(error_number::ERR_CONNECTION_LOST);
                         delete v;
                     });
-
+#endif
+////////////////////////////////////////////////////////////
                     break;
                 }
             }
